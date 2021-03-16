@@ -19,24 +19,7 @@
 # This sample shows how to prevent push of commits where the log message starts
 # with "WIP" (work in progress).
 
-# Get branch name
-set -x
-BRANCH=`git rev-parse --abbrev-ref HEAD`
-set +x
-
-if [[ "$BRANCH" -ne "wip"* ]]
-then
-	
-	runLintChecks
-
-	read -p "Do you want to run unit test? Y/y" answer
-
-	if	[ "$answer" -eq "Y" | "$answer" -eq "y"]
-	then
-		runUnitTests
-	fi	
-	
-fi		
+# Get branch nameset -x	
 
 function runLintChecks(){
 
@@ -46,7 +29,7 @@ function runLintChecks(){
 
 	status=$?
 
- if [ "$status" -eq 0 ]
+ if [ "$status" = 0 ]
  then
 	echo "Static analysis found no problems."
 	exit 0
@@ -76,3 +59,19 @@ function runUnitTests(){
 	exit 1
  fi
 }
+
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+
+if [[ "$BRANCH" != "wip*" ]]
+then
+	
+	runLintChecks
+
+	read -p "Do you want to run unit test? Y/y" answer
+
+	if	[ "$answer" = "Y" | "$answer" = "y"]
+	then
+		runUnitTests
+	fi	
+	
+fi	

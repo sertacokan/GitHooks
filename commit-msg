@@ -32,7 +32,8 @@ IFS="\n" read -a MESSAGE_LINES <<< "$FILE_CONTENT"
 
 FIRST_LINE_MESSAGE="${MESSAGE_LINES[0]}"
 
-if [[ ${#FIRST_LINE_MESSAGE} -le 72 ]]; then
+if [[ ${#FIRST_LINE_MESSAGE} -le 72 ]];
+then
  	echo "${BGreen}Good commit!${Color_Off}"
  exit 0
 else
