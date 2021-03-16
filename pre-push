@@ -19,37 +19,60 @@
 # This sample shows how to prevent push of commits where the log message starts
 # with "WIP" (work in progress).
 
-echo "Runnig static analysis"
+# Get branch name
+set -x
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+set +x
 
-./gradlew app:ktlintCheck --daemon
-
-status=$?
-
-if [ "$status" = 0 ]
+if [[ "$BRANCH" -ne "wip"* ]]
 then
+	
+	runLintChecks
+
+	read -p "Do you want to run unit test? Y/y" answer
+
+	if	[ "$answer" -eq "Y" | "$answer" -eq "y"]
+	then
+		runUnitTests
+	fi	
+	
+fi		
+
+function runLintChecks(){
+
+	echo "Runnig static analysis"
+
+	./gradlew app:ktlintCheck --daemon
+
+	status=$?
+
+ if [ "$status" -eq 0 ]
+ then
 	echo "Static analysis found no problems."
 	exit 0
-else 
+ else 
 	echo "Static analysis find these issues"	
-	echo >&2 
+	echo 1>&2 
 	exit 1
-fi
+ fi
 
-echo "Lint checks completed"
+	echo "Lint checks completed"
+}
 
+function runUnitTests(){
+	echo "Running unit tests"
 
-echo "Running unit tests"
+	./gradlew clean test
 
-./gradlew clean test
+	result=$?
 
-result=$?
-
-if [ "$result" = 0 ]
-then
+ if [ "$result" -eq 0 ]
+ then
 	echo "All test passed"
 	exit 0
-else
+ else
 	echo "Tests failed"
+	echo 1>&2
 	exit 1
-fi	
-
+ fi
+}
