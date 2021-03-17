@@ -28,9 +28,9 @@ function runLintChecks(){
  ./gradlew app:ktlintCheck --daemon
 
 # Check ktlint status
- status=$?
+ KTLINT_STATUS=$?
 
- if [ "$status" -eq 0 ]
+ if [ "$KTLINT_STATUS" -eq 0 ]
  then
 	echo "Static analysis found no problems."
 	exit 0
@@ -44,14 +44,15 @@ function runLintChecks(){
 }
 
 function runUnitTests(){
+
  echo "Running unit tests"
 
  ./gradlew clean test
 
  #Check unit test status
- result=$?
+ UNIT_TEST_STATUS=$?
 
- if [ "$result" -eq 0 ]
+ if [ "$UNIT_TEST_STATUS" -eq 0 ]
  then
 	echo "All test passed"
 	exit 0
@@ -64,14 +65,16 @@ function runUnitTests(){
 
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 
-if [[ "$BRANCH" -ne "wip*" ]]
+#A non-zero exit code will abort the push
+
+if [ "$BRANCH" -ne "wip*" ]
 then
 	
 	runLintChecks
 
-	read -p "Do you want to run unit test? Y or N" answer
+	read -p "Do you want to run unit test? Y or N" UNIT_TEST_ANSWER
 
-	case $answer in 
+	case $UNIT_TEST_ANSWER in 
 	[yY])
 		runUnitTests
 	;;
@@ -80,5 +83,5 @@ then
 		exit 0	
 	;;
 	esac
-	
+
 fi	
