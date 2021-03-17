@@ -28,7 +28,6 @@ function check_commit_message(){
 	export ERROR_MSG="First line of commit message longer than 72 character"
 
 	IFS="\n" read -a MESSAGE_LINES <<< "$1"
-	set -x
 
 	local FIRST_LINE_MESSAGE="${MESSAGE_LINES[0]}"
 
@@ -41,13 +40,12 @@ function check_commit_message(){
  		echo "${BBlue}$ERROR_MSG\n"
  		exit 1
 	fi
-	set +x
 }
 
 MSG_FILE=$1
 FILE_CONTENT="$(cat $MSG_FILE)"
 
-if [ ! -z "$FILE_CONTENT" ]
+if [ -n "$FILE_CONTENT" ]
 then
 	check_commit_message $FILE_CONTENT
 else
