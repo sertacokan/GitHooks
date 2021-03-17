@@ -1,4 +1,4 @@
-#!/bin/sh -vx
+#!/bin/sh -x
 #
 # An example hook script to check the commit log message.
 # Called by "git commit" with one argument, the name of the file
@@ -29,11 +29,13 @@ function check_commit_message(){
 
 	IFS=$'\n' read -r -d '' -a MESSAGE_LINES <<< "$1"
 
-	local FIRST_LINE_MESSAGE="${MESSAGE_LINES[0]}"
+	COMMIT_MESSAGE_LINES="$MESSAGE_LINES"
+
+	local FIRST_LINE_MESSAGE="${COMMIT_MESSAGE_LINES[0]}"
 
 	#If this script exits non-zero, Git aborts the commit process
 
-	if [[ ${#FIRST_LINE_MESSAGE} -le 72 ]];
+	if [ ${#FIRST_LINE_MESSAGE} -le 72 ];
 	then
  		echo "${BGreen}Good commit!${Color_Off}"
  		exit 0
@@ -50,7 +52,7 @@ FILE_CONTENT=$(cat $MSG_FILE)
 
 # Commit message is non null and message length greater than 0
 
-if [ -n "$FILE_CONTENT" && $"#FILE_CONTENT" -gt 0 ]
+if [ -n "$FILE_CONTENT" ]
 then
 	check_commit_message $FILE_CONTENT
 else
