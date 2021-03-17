@@ -23,7 +23,7 @@ BGreen="\033[1;32m"       # Green
 BYellow="\033[1;33m"      # Yellow
 BBlue="\033[1;34m"
 
-fun check_commit_message(){
+function check_commit_message(){
 
 	export ERROR_MSG="First line of commit message longer than 72 character"
 
@@ -47,9 +47,10 @@ fun check_commit_message(){
 MSG_FILE=$1
 FILE_CONTENT="$(cat $MSG_FILE)"
 
-if [ -z "$FILE_CONTENT" ]
+if [ ! -z "$FILE_CONTENT" ]
 then
 	check_commit_message $FILE_CONTENT
 else
 	echo "Please enter commit message"
+	exit 1
 fi	
