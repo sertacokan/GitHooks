@@ -27,7 +27,7 @@ function check_commit_message(){
 
 	export ERROR_MSG="First line of commit message longer than 72 character"
 
-	IFS="\n" read -a MESSAGE_LINES <<< "$1"
+	IFS="\n" read -r MESSAGE_LINES <<< "$1"
 
 	local FIRST_LINE_MESSAGE="${MESSAGE_LINES[0]}"
 
