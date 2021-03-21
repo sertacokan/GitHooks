@@ -21,26 +21,25 @@
 
 # Get branch nameset -x	
 
-function runLintChecks(){
+function runStaticCheck(){
 
- echo "Runnig static analysis"
+ echo "Runnig static analysis..."
 
- ./gradlew app:ktlintCheck --daemon
+ ./gradlew app:ktlintCheck app:detektCheck --daemon
 
 # Check ktlint status
- KTLINT_STATUS=$?
+ local STATIC_CHECK_STATUS=$?
 
- if [ "$KTLINT_STATUS" -eq 0 ]
+ if [ "$STATIC_CHECK_STATUS" -eq 0 ]
  then
 	echo "Static analysis found no problems."
-	exit 0
+	askUnitTest
  else 
 	echo "Static analysis find these issues"	
 	echo 1>&2 
 	exit 1
  fi
 
- echo "Lint checks completed"
 }
 
 function runUnitTests(){
@@ -50,27 +49,20 @@ function runUnitTests(){
  ./gradlew clean test
 
  #Check unit test status
- UNIT_TEST_STATUS=$?
+ local UNIT_TEST_STATUS=$?
 
  if [ "$UNIT_TEST_STATUS" -eq 0 ]
  then
-	echo "All test passed"
+	echo "All unit tests passed"
 	exit 0
  else
-	echo "Tests failed"
+	echo "Unit tests failed"
 	echo 1>&2
 	exit 1
  fi
 }
 
-BRANCH=`git rev-parse --abbrev-ref HEAD`
-
-#A non-zero exit code will abort the push
-
-if [ "$BRANCH" -ne "wip*" ]
-then
-	
-	runLintChecks
+function askUnitTest(){
 
 	read -p "Do you want to run unit test? Y or N" UNIT_TEST_ANSWER
 
@@ -82,6 +74,17 @@ then
 		echo "Unit tests are not running"
 		exit 0	
 	;;
-	esac
 
+	esac
+}
+
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+
+#A non-zero exit code will abort the push
+
+if [ "$BRANCH" -ne "wip/*" ]
+then
+	
+	runStaticChecks	
+	
 fi	

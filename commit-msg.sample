@@ -27,7 +27,9 @@ function check_commit_message(){
 
 	export ERROR_MSG="First line of commit message longer than 72 character"
 
-	IFS=$'\n' read -r -d '' -a MESSAGE_LINES <<< "$1"
+	COMMIT_MESSAGE=$1
+
+	IFS=$'\n' read -r -d '' -a MESSAGE_LINES <<< $COMMIT_MESSAGE
 
 	COMMIT_MESSAGE_LINES="$MESSAGE_LINES"
 
@@ -47,14 +49,15 @@ function check_commit_message(){
 }
 
 # The commit-msg hook takes one parameter, which again is the path to a temporary file that contains the commit message written by the developer. 
-MSG_FILE=$1
-FILE_CONTENT=$(cat $MSG_FILE)
 
-# Commit message is non null and message length greater than 0
+TEMPORARY_MSG_FILE=$1
+FILE_CONTENT=$(cat $TEMPORARY_MSG_FILE)
 
-if [ -n "$FILE_CONTENT" ]
+# Check FILE_CONTENT is not empty
+
+if [[ $FILE_CONTENT ]]
 then
-	check_commit_message $FILE_CONTENT
+	check_commit_message "$FILE_CONTENT"
 else
 	echo "Please enter commit message"
 	exit 1
