@@ -29,6 +29,8 @@ function check_commit_message(){
 
 	COMMIT_MESSAGE=$1
 
+	# -r disallows escape sequences, line condition
+
 	IFS=$'\n' read -r -d '' -a MESSAGE_LINES <<< $COMMIT_MESSAGE
 
 	COMMIT_MESSAGE_LINES="$MESSAGE_LINES"
@@ -39,11 +41,11 @@ function check_commit_message(){
 
 	if [ ${#FIRST_LINE_MESSAGE} -le 72 ];
 	then
- 		echo "${BGreen}Good commit!${Color_Off}"
+ 		printf "${BGreen}Good commit!${Color_Off}\n"
  		exit 0
 	else
-		echo "${BRed}Bad commit ${BYellow}\"$FIRST_LINE_MESSAGE\"\n"
- 		echo "${BBlue}$ERROR_MSG\n"
+		printf "${BRed}Bad commit: ${BYellow}'%s'\n" $FIRST_LINE_MESSAGE
+ 		printf "${BBlue}$ERROR_MSG\n"
  		exit 1
 	fi
 }
@@ -59,6 +61,6 @@ if [[ $FILE_CONTENT ]]
 then
 	check_commit_message "$FILE_CONTENT"
 else
-	echo "Please enter commit message"
+	printf "Please enter commit message\n"
 	exit 1
 fi	

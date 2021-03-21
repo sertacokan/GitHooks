@@ -32,11 +32,11 @@ function runStaticCheck(){
 
  if [ "$STATIC_CHECK_STATUS" -eq 0 ]
  then
-	echo "Static analysis found no problems."
+	printf "Static analysis found no problems.\n"
 	askUnitTest
  else 
-	echo "Static analysis find these issues"	
-	echo 1>&2 
+	printf "Static analysis find these issues\n"	
+	printf 1>&2 
 	exit 1
  fi
 
@@ -44,7 +44,7 @@ function runStaticCheck(){
 
 function runUnitTests(){
 
- echo "Running unit tests"
+ printf "Running unit tests\n"
 
  ./gradlew clean test
 
@@ -53,11 +53,11 @@ function runUnitTests(){
 
  if [ "$UNIT_TEST_STATUS" -eq 0 ]
  then
-	echo "All unit tests passed"
+	printf "All unit tests passed\n"
 	exit 0
  else
-	echo "Unit tests failed"
-	echo 1>&2
+	printf "Unit tests failed\n"
+	printf 1>&2
 	exit 1
  fi
 }
@@ -71,7 +71,7 @@ function askUnitTest(){
 		runUnitTests
 	;;
 	*)
-		echo "Unit tests are not running"
+		printf "Unit tests are not running\n"
 		exit 0	
 	;;
 
