@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh
 
 # An example hook script to verify what is about to be pushed.  Called by "git
 # push" after it has checked the remote status, but before anything has been
@@ -19,72 +19,100 @@
 # This sample shows how to prevent push of commits where the log message starts
 # with "WIP" (work in progress).
 
-# Get branch nameset -x	
+# Get branch nameset -x
 
-function runStaticCheck(){
+function checkKtlintResult() {
 
- echo "Runnig static analysis..."
+	# Check static analysis result
 
- ./gradlew app:ktlintCheck app:detektCheck --daemon
+	local KTLINT_CHECK_STATUS=$1
 
-# Check ktlint status
- local STATIC_CHECK_STATUS=$?
+	if [[ "$KTLINT_CHECK_STATUS" -eq 0 ]]; then
+		echo "ktlint found no problems."
 
- if [ "$STATIC_CHECK_STATUS" -eq 0 ]
- then
-	printf "Static analysis found no problems.\n"
-	askUnitTest
- else 
-	printf "Static analysis find these issues\n"	
-	printf 1>&2 
-	exit 1
- fi
+		runDetektCheck
+
+	else
+		echo "ktlint find these issues"
+		echo 1>&2
+		askForFormatCode
+		exit 1
+	fi
 
 }
 
-function runUnitTests(){
+function runDetektCheck() {
 
- printf "Running unit tests\n"
+	echo "Running detekt"
 
- ./gradlew clean test
+	./gradlew detektCheck --daemon
 
- #Check unit test status
- local UNIT_TEST_STATUS=$?
+	local DETEKT_CHECK_STATUS=$?
 
- if [ "$UNIT_TEST_STATUS" -eq 0 ]
- then
-	printf "All unit tests passed\n"
-	exit 0
- else
-	printf "Unit tests failed\n"
-	printf 1>&2
-	exit 1
- fi
+	if [[ "$DETEKT_CHECK_STATUS" -eq 0 ]]; then
+		echo "detekt found no problems."
+
+		askUnitTest
+	else
+		echo "detekt find these issues"
+		echo 1>&2
+		askForFormatCode
+		exit 1
+	fi
+
 }
 
-function askUnitTest(){
+function runUnitTests() {
+
+	echo "Running unit tests"
+
+	./gradlew clean test
+
+	#Check unit test status
+
+	local UNIT_TEST_STATUS=$?
+
+	if [[ $UNIT_TEST_STATUS -eq 0 ]]; then
+		echo "All unit tests passed"
+		exit 0
+	else
+		echo "Unit tests failed"
+		echo 1>&2
+		exit 1
+	fi
+}
+
+function askUnitTest() {
 
 	read -p "Do you want to run unit test? Y or N" UNIT_TEST_ANSWER
 
-	case $UNIT_TEST_ANSWER in 
-	[yY])
+	if [[ $UNIT_TEST_ANSWER = [yY] ]]; then
 		runUnitTests
-	;;
-	*)
-		printf "Unit tests are not running\n"
-		exit 0	
-	;;
-
-	esac
+	else
+		echo "Unit tests are not running"
+		exit 0
+	fi
 }
 
-BRANCH=`git rev-parse --abbrev-ref HEAD`
+function askForFormatCode() {
+
+	read -p "Do you want to format code? Y or N" FORMAT_CODE_RESULT
+
+	if [[ $FORMAT_CODE_RESULT = [yY] ]]; then
+		./gradlew ktlintFormat
+	else
+		echo "Code format is not running"
+		exit 0
+	fi
+
+}
 
 #A non-zero exit code will abort the push
 
-if [ "$BRANCH" -ne "wip/*" ]
-then
-	
-	runStaticChecks	
-	
-fi	
+echo "Runnig ktlint..."
+
+./gradlew ktlintCheck --daemon
+
+checkKtlintResult
+
+exit 0
